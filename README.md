@@ -30,7 +30,7 @@ Le backend gère la logique de données et communique avec Spotify.
 Commande installation : 
 ```env
 cd backend
-poetry install
+poetry install --no-root
 poetry run uvicorn main:app --reload
 ```
 ### 3. Lancement du Frontend (NPM)
@@ -38,6 +38,7 @@ L'interface 3D interactive.
 
 Commande installation :
 ```env
+cd frontend
 npm install
 npm run dev
 ```
