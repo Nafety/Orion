@@ -22,7 +22,7 @@ Créez un fichier `.env` dans le dossier racine :
 ```env
 SPOTIFY_CLIENT_ID=votre_client_id
 SPOTIFY_CLIENT_SECRET=votre_client_secret
-SPOTIFY_REDIRECT_URI=[http://127.0.0.1:8000/callback](http://127.0.0.1:8000/callback)
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:8000/callback
 ```
 ### 2. Lancement du Backend (Python Poetry)
 Le backend gère la logique de données et communique avec Spotify.
