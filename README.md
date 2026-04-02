@@ -47,15 +47,5 @@ npm run dev
 Accédez à l'application via http://localhost:5173
 
 ## Status
-Dernière mise à jour du module de navigation : Février 2026.
+Dernière mise à jour du module de navigation : 2 Avril 2026.
 Développé par BARSOT Thomas
-
-gcloud run services update fastapi-backend \
-  --region europe-west1 \
-  --update-env-vars \
-SPOTIFY_CLIENT_ID=c8652890588648c19952c52f47877e88,SPOTIFY_CLIENT_SECRET=e7b2c60c39d142839b757ec31695e273,SPOTIFY_REDIRECT_URI=https://fastapi-backend-673376371717.europe-west1.run.app/callback
-
-cd backend
-gcloud builds submit --tag gcr.io/orion-492116/spotify-fastapi .
-
-gcloud run deploy fastapi-backend   --image gcr.io/orion-492116/spotify-fastapi   --platform managed   --region europe-west1   --allow-unauthenticated
