@@ -12,7 +12,9 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    "http://127.0.0.1:5173",
+    "https://orion-mq194v5ud-nafety.vercel.app",
+    "https://orion.nafety.online"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -80,7 +82,9 @@ def callback(code: str = Query(None), error: str = Query(None)):
 
     access_token = token_json["access_token"]
     print("[TOKEN RECEIVED] Access token successfully retrieved")
-    return RedirectResponse(url=f"/?token={access_token}")
+    return RedirectResponse(
+        url=f"https://orion.nafety.online/?token={access_token}"
+    )
 
 @app.get("/api/city-data")
 def get_city_data(token: str):
