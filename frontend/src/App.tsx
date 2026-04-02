@@ -130,7 +130,7 @@ export default function App() {
             {activeTab === 'all' && (
               <div className="flex items-center gap-3 px-2 py-1.5 opacity-80">
                 <div className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee] animate-pulse" />
-                <span className="text-[8px] font-black uppercase tracking-tighter text-cyan-400">Glow : Pulse Récent</span>
+                <span className="text-[8px] font-black uppercase tracking-tighter text-cyan-400">Glow : Recent Track</span>
               </div>
             )}
           </div>
