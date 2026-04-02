@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react'
 import Scene from './Scene'
 import { Info, Clock, Users, Globe, ExternalLink, Play, BarChart2, X, FilterX } from 'lucide-react'
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const getStableColor = (str: string) => {
   if (!str || str === "Autres" || str === "Signal Original") return "#4b5563";
   let hash = 0;
@@ -24,7 +26,7 @@ export default function App() {
       setToken(t)
       setLoading(true)
       window.history.replaceState({}, document.title, "/")
-      fetch(`http://127.0.0.1:8000/api/city-data?token=${t}`)
+      fetch(`${BACKEND_URL}/api/city-data?token=${t}`)
         .then(res => res.json())
         .then(d => { setPayload(d); setLoading(false); })
         .catch(() => setLoading(false))
@@ -55,7 +57,7 @@ export default function App() {
     <div className="h-full w-full flex flex-col items-center justify-center bg-[#010103] text-white font-sans">
       <Globe size={48} className="text-cyan-500 mb-6" />
       <h1 className="text-8xl font-black italic tracking-tighter uppercase leading-none">ORION<span className="text-cyan-500">.</span></h1>
-      <button onClick={() => window.location.href = 'http://127.0.0.1:8000/login'} className="mt-8 px-12 py-4 border border-cyan-500 text-cyan-500 uppercase font-bold hover:bg-cyan-500 hover:text-black transition-all shadow-[0_0_30px_rgba(34,211,238,0.2)]">Connecter le Flux</button>
+      <button onClick={() => window.location.href = `${BACKEND_URL}/login`} className="mt-8 px-12 py-4 border border-cyan-500 text-cyan-500 uppercase font-bold hover:bg-cyan-500 hover:text-black transition-all shadow-[0_0_30px_rgba(34,211,238,0.2)]">Connecter le Flux</button>
     </div>
   );
 
@@ -68,7 +70,7 @@ export default function App() {
     <div className="h-full w-full relative bg-[#010103] overflow-hidden font-sans text-white text-selection-none">
       
       {selectedNode && (
-        <div key={activeTab} className="absolute left-10 top-1/2 -translate-y-1/2 w-85 max-h-[90vh] bg-black/80 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-6 z-[100] animate-in slide-in-from-left-10 duration-500 shadow-2xl flex flex-col overflow-hidden">
+        <div key={activeTab} className="absolute left-10 top-1/2 -translate-y-1/2 w-85 max-h-[95vh] bg-black/80 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-6 z-[100] animate-in slide-in-from-left-10 duration-500 shadow-2xl flex flex-col overflow-hidden">
           <button onClick={() => setSelectedNode(null)} className="absolute top-6 right-6 text-white/30 hover:text-white transition-colors z-[110]"><X size={20}/></button>
           
           <div className="relative w-full aspect-square rounded-[1.5rem] overflow-hidden mb-4 border border-white/10 shrink-0">
