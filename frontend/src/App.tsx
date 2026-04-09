@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import Scene from './Scene'
 import {
   Info, Clock, Users, Globe, ExternalLink, BarChart2, X,
-  FilterX, AlertTriangle, ChevronRight, Copy, Check, SlidersHorizontal, LogOut
+  FilterX, AlertTriangle, ChevronRight, Copy, Check, SlidersHorizontal, LogOut, PanelRightClose, PanelRightOpen
 } from 'lucide-react'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -194,7 +194,7 @@ function SetupModal({ onConnect }: { onConnect: (clientId: string) => void }) {
             <span style={{ display: 'block', marginTop: '4px', color: 'rgba(234,179,8,0.6)', fontSize: '11px' }}>
               No data is stored on any server — everything stays in your browser.
             </span>
-        </p>
+          </p>
         </div>
 
         <div style={{ marginBottom: '1.25rem' }}>
@@ -206,7 +206,7 @@ function SetupModal({ onConnect }: { onConnect: (clientId: string) => void }) {
             {' '}→ <strong style={{ fontWeight: 500 }}>Create app</strong>
           </Step>
           <Step n={2}>
-             In <em>Redirect URIs</em>, add exactly:
+            In <em>Redirect URIs</em>, add exactly:
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '7px 10px' }}>
               <code style={{ fontSize: '11px', color: '#22d3ee', flex: 1, wordBreak: 'break-all' }}>{REDIRECT_URI}</code>
               <button onClick={handleCopy} style={{ background: 'none', border: 'none', cursor: 'pointer', color: copied ? '#4ade80' : 'rgba(255,255,255,0.4)', padding: '2px', display: 'flex' }}>
@@ -215,8 +215,8 @@ function SetupModal({ onConnect }: { onConnect: (clientId: string) => void }) {
             </div>
           </Step>
           <Step n={3}>
-          Check <strong style={{ fontWeight: 500 }}>Web API</strong> in the APIs, save, then copy the <strong style={{ fontWeight: 500 }}>Client ID</strong>.
-        </Step>
+            Check <strong style={{ fontWeight: 500 }}>Web API</strong> in the APIs, save, then copy the <strong style={{ fontWeight: 500 }}>Client ID</strong>.
+          </Step>
         </div>
 
         <div style={{ marginBottom: '0.75rem' }}>
@@ -328,7 +328,7 @@ function PanelContent({
       </div>
 
       {/* Filter list */}
-      <div style={{ 
+      <div style={{
         background: 'rgba(255,255,255,0.03)',
         border: '0.5px solid rgba(255,255,255,0.07)',
         borderRadius: '14px',
@@ -382,7 +382,7 @@ function PanelContent({
         </div>
       </div>
 
-      {/* ── Disconnect button ── */}
+      {/* Disconnect button */}
       <button
         onClick={onDisconnect}
         style={{
@@ -433,9 +433,10 @@ export default function App() {
   const [showSetup, setShowSetup] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [drawerOpen, setDrawerOpen] = useState(false)
+  // ── Sidebar collapsed state (desktop only) ──
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   useEffect(() => {
-    // ① Session déjà active → sauter directement à ready
     const savedToken = sessionStorage.getItem('spotify_access_token')
     if (savedToken) {
       setAppState('loading')
@@ -470,7 +471,7 @@ export default function App() {
       try {
         setLoadingMsg("Exchanging authorization code...")
         const accessToken = await exchangeCodeForToken(code, clientId, verifier)
-        sessionStorage.setItem('spotify_access_token', accessToken) // ② Persister pour les refresh
+        sessionStorage.setItem('spotify_access_token', accessToken)
         setLoadingMsg('Mapping Neural Network...')
         const data = await buildPayload(accessToken)
         setPayload(data)
@@ -489,7 +490,6 @@ export default function App() {
     await startPKCEFlow(clientId)
   }, [])
 
-  // ③ Déconnexion : vider la session et revenir au landing
   const handleDisconnect = useCallback(() => {
     sessionStorage.removeItem('spotify_access_token')
     setPayload(null)
@@ -588,55 +588,147 @@ export default function App() {
             ORION<span className="text-cyan-500">.</span>
           </div>
 
-          {/* Node detail panel */}
+          {/* ── Node detail panel — FIXED: no scroll, compact layout ── */}
           {selectedNode && (
             <div
               key={`${activeTab}-${selectedNode.id}`}
-              className="absolute left-8 top-1/2 w-80 max-h-[85vh] bg-black/85 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-6 z-[100] shadow-2xl flex flex-col overflow-hidden"
-              style={{ transform: 'translateY(-50%)', animation: 'slideInLeft 0.4s ease-out' }}
+              style={{
+                position: 'absolute',
+                left: '32px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '272px',
+                background: 'rgba(0,0,0,0.88)',
+                backdropFilter: 'blur(24px)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '2rem',
+                padding: '20px',
+                zIndex: 100,
+                boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                animation: 'slideInLeft 0.4s ease-out',
+                // No overflow, no maxHeight — fits naturally
+              }}
             >
-              <button onClick={() => setSelectedNode(null)} className="absolute top-5 right-5 text-white/30 hover:text-white transition-colors z-[110]"><X size={18} /></button>
-              <div className="relative w-full aspect-square rounded-[1.5rem] overflow-hidden mb-4 border border-white/10 shrink-0">
-                <img src={selectedNode.image} className="w-full h-full object-cover" alt="" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              {/* Close */}
+              <button
+                onClick={() => setSelectedNode(null)}
+                style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.3)', zIndex: 110, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <X size={16} />
+              </button>
+
+              {/* Image — square, fixed size */}
+              <div style={{ width: '100%', aspectRatio: '1', borderRadius: '1.25rem', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0, position: 'relative' }}>
+                <img src={selectedNode.image} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} alt="" />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} />
               </div>
-              <div className="w-full mb-4 shrink-0 rounded-2xl overflow-hidden bg-black/40 border border-white/5">
-                <iframe title="Spotify Player" src={`https://open.spotify.com/embed/${selectedNode.type}/${cleanId}?utm_source=generator&theme=0`} width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="block" />
+
+              {/* Spotify embed — fixed height, no scrollbar */}
+              <div style={{ borderRadius: '12px', overflow: 'hidden', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0, height: '80px' }}>
+                <iframe
+                  title="Spotify Player"
+                  src={`https://open.spotify.com/embed/${selectedNode.type}/${cleanId}?utm_source=generator&theme=0`}
+                  width="100%"
+                  height="80"
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  style={{ display: 'block', border: 'none' }}
+                  scrolling="no"
+                />
               </div>
-              <div className="overflow-y-auto flex-1 pr-1">
+
+              {/* Name & genre */}
+              <div style={{ flexShrink: 0 }}>
                 {activeTab === 'recent' && selectedNode.top_track && (
-                  <div className="mb-2 inline-block px-3 py-1 bg-yellow-400 text-black text-[9px] font-black italic uppercase tracking-tighter rounded-full animate-pulse">★ Top Track Hit</div>
+                  <div style={{ marginBottom: '6px', display: 'inline-block', padding: '2px 10px', background: '#facc15', color: '#000', fontSize: '8px', fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', letterSpacing: '0.05em', borderRadius: '999px' }}>
+                    ★ Top Track Hit
+                  </div>
                 )}
-                <h2 className="text-2xl font-black italic tracking-tighter leading-tight mb-1 uppercase break-words">{selectedNode.name}</h2>
-                <p className="text-cyan-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-4 opacity-70">
+                <h2 style={{ margin: '0 0 4px', fontSize: '18px', fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.04em', textTransform: 'uppercase', lineHeight: 1.1, wordBreak: 'break-word' }}>
+                  {selectedNode.name}
+                </h2>
+                <p style={{ margin: 0, fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(34,211,238,0.7)' }}>
                   {activeTab === 'all' ? (selectedNode.genres?.[0] || 'Signal Original') : (selectedNode.artist_name || 'Unknown Artist')}
                 </p>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
-                    <div className="flex items-center gap-2 text-gray-400 uppercase font-black text-[8px] tracking-widest"><BarChart2 size={12} /> Popularity</div>
-                    <div className="text-lg font-mono text-white">{selectedNode.popularity}%</div>
+              </div>
+
+              {/* Stats row */}
+              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', fontWeight: 900, fontSize: '7px', letterSpacing: '0.12em' }}>
+                    <BarChart2 size={11} /> Pop.
                   </div>
-                  {activeTab === 'all' && selectedNode.top_track && (
-                    <div className="p-3 bg-yellow-400/10 rounded-xl border border-yellow-400/20">
-                      <div className="flex items-center gap-2 text-yellow-500 uppercase font-black text-[8px] tracking-widest mb-1"><Info size={12} /> Top Track</div>
-                      <div className="text-[10px] font-bold text-white uppercase italic truncate">{selectedNode.top_track}</div>
-                    </div>
-                  )}
+                  <div style={{ fontSize: '18px', fontFamily: 'var(--font-mono)', color: 'white' }}>{selectedNode.popularity}%</div>
                 </div>
+                {activeTab === 'all' && selectedNode.top_track && (
+                  <div style={{ flex: 1, padding: '10px 12px', background: 'rgba(250,204,21,0.08)', borderRadius: '12px', border: '1px solid rgba(250,204,21,0.18)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#eab308', textTransform: 'uppercase', fontWeight: 900, fontSize: '7px', letterSpacing: '0.12em', marginBottom: '4px' }}>
+                      <Info size={10} /> Top Track
+                    </div>
+                    <div style={{ fontSize: '9px', fontWeight: 700, color: 'white', textTransform: 'uppercase', fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {selectedNode.top_track}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
         </div>
 
-        {/* Right sidebar */}
-        <div style={{ width: '256px', flexShrink: 0, background: 'rgba(3,3,10,0.96)', borderLeft: '0.5px solid rgba(255,255,255,0.06)', padding: '20px 14px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <PanelContent
-            activeTab={activeTab} payload={payload} dynamicLegend={dynamicLegend}
-            activeFilter={activeFilter} setActiveFilter={setActiveFilter}
-            currentMainstreamScore={currentMainstreamScore}
-            onDisconnect={handleDisconnect}
-          />
+        {/* ── Right sidebar with collapse toggle ── */}
+        <div style={{
+          width: sidebarCollapsed ? '0px' : '256px',
+          flexShrink: 0,
+          background: 'rgba(3,3,10,0.96)',
+          borderLeft: '0.5px solid rgba(255,255,255,0.06)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)',
+          position: 'relative',
+        }}>
+          {/* Inner wrapper preserves layout during collapse animation */}
+          <div style={{ width: '256px', padding: '20px 14px', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', opacity: sidebarCollapsed ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: sidebarCollapsed ? 'none' : 'auto' }}>
+            <PanelContent
+              activeTab={activeTab} payload={payload} dynamicLegend={dynamicLegend}
+              activeFilter={activeFilter} setActiveFilter={setActiveFilter}
+              currentMainstreamScore={currentMainstreamScore}
+              onDisconnect={handleDisconnect}
+            />
+          </div>
         </div>
+
+        {/* ── Sidebar toggle button — floats on the edge ── */}
+        <button
+          onClick={() => setSidebarCollapsed(c => !c)}
+          title={sidebarCollapsed ? 'Open panel' : 'Close panel'}
+          style={{
+            position: 'absolute',
+            right: sidebarCollapsed ? '8px' : 'calc(256px + 8px)',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 60,
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            background: 'rgba(3,3,10,0.96)',
+            border: '0.5px solid rgba(255,255,255,0.12)',
+            color: 'rgba(255,255,255,0.4)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'right 0.3s cubic-bezier(0.4,0,0.2,1), color 0.2s, border-color 0.2s',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#22d3ee'; e.currentTarget.style.borderColor = 'rgba(34,211,238,0.4)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)' }}
+        >
+          {sidebarCollapsed ? <PanelRightOpen size={13} /> : <PanelRightClose size={13} />}
+        </button>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════
@@ -667,7 +759,7 @@ export default function App() {
         {/* Bottom bar */}
         <div className="absolute bottom-0 left-0 right-0 z-40 bg-[#08080f]/90 backdrop-blur-xl border-t border-white/8 flex items-center justify-between px-4 py-2.5" style={{ minHeight: '52px' }}>
           <div className="flex flex-col min-w-0 flex-1 pr-3">
-            <span className="text-[6.5px] uppercase tracking-widest text-white/25 font-black mb-0.5">Last playede</span>
+            <span className="text-[6.5px] uppercase tracking-widest text-white/25 font-black mb-0.5">Last played</span>
             <span className="text-[9px] font-bold text-cyan-400 truncate leading-tight">{payload.stats.last_played}</span>
           </div>
           <button
@@ -685,38 +777,76 @@ export default function App() {
           <>
             <div className="absolute inset-0 z-[100] bg-black/40" onClick={() => setSelectedNode(null)} />
             <div
-              className="absolute inset-x-0 bottom-0 z-[110] bg-[#0c0c16]/97 backdrop-blur-3xl border-t border-white/10 rounded-t-[2rem] p-4 flex flex-col gap-3"
-              style={{ maxHeight: '78vh', overflowY: 'auto', animation: 'slideUp 0.3s ease-out' }}
+              style={{
+                position: 'absolute',
+                insetInline: 0,
+                bottom: 0,
+                zIndex: 110,
+                background: 'rgba(12,12,22,0.97)',
+                backdropFilter: 'blur(24px)',
+                borderTop: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '2rem 2rem 0 0',
+                padding: '16px',
+                animation: 'slideUp 0.3s ease-out',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                // Fixed max height, no internal scroll
+                maxHeight: '75vh',
+                overflow: 'hidden',
+              }}
             >
-              <div className="w-8 h-0.5 bg-white/15 rounded-full mx-auto mb-1 shrink-0" />
+              <div style={{ width: '32px', height: '3px', background: 'rgba(255,255,255,0.15)', borderRadius: '999px', margin: '0 auto 2px', flexShrink: 0 }} />
 
-              <div className="flex items-start gap-3">
-                <img src={selectedNode.image} className="w-16 h-16 rounded-xl object-cover border border-white/10 shrink-0" alt="" />
-                <div className="min-w-0 flex-1">
+              {/* Header row: image + info + close */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flexShrink: 0 }}>
+                <img src={selectedNode.image} style={{ width: '56px', height: '56px', borderRadius: '12px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} alt="" />
+                <div style={{ flex: 1, minWidth: 0 }}>
                   {activeTab === 'recent' && selectedNode.top_track && (
-                    <div className="mb-1 inline-block px-2 py-0.5 bg-yellow-400 text-black text-[7px] font-black italic uppercase rounded-full">★ Hit</div>
+                    <div style={{ marginBottom: '4px', display: 'inline-block', padding: '1px 8px', background: '#facc15', color: '#000', fontSize: '7px', fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', borderRadius: '999px' }}>★ Hit</div>
                   )}
-                  <h2 className="text-base font-black italic tracking-tighter uppercase leading-tight">{selectedNode.name}</h2>
-                  <p className="text-cyan-400 text-[9px] font-bold tracking-widest uppercase opacity-70 truncate mt-0.5">
+                  <h2 style={{ margin: '0 0 2px', fontSize: '15px', fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.03em', textTransform: 'uppercase', lineHeight: 1.1 }}>
+                    {selectedNode.name}
+                  </h2>
+                  <p style={{ margin: 0, fontSize: '9px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(34,211,238,0.7)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {activeTab === 'all' ? (selectedNode.genres?.[0] || 'Signal Original') : (selectedNode.artist_name || 'Unknown')}
                   </p>
                 </div>
-                <button onClick={() => setSelectedNode(null)} className="text-white/25 hover:text-white shrink-0"><X size={16} /></button>
+                <button onClick={() => setSelectedNode(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.25)', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  <X size={16} />
+                </button>
               </div>
 
-              <div className="rounded-xl overflow-hidden bg-black/40 border border-white/5 shrink-0">
-                <iframe title="Spotify Player" src={`https://open.spotify.com/embed/${selectedNode.type}/${cleanId}?utm_source=generator&theme=0`} width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="block" />
+              {/* Spotify embed — fixed height, no scroll */}
+              <div style={{ borderRadius: '12px', overflow: 'hidden', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0, height: '80px' }}>
+                <iframe
+                  title="Spotify Player"
+                  src={`https://open.spotify.com/embed/${selectedNode.type}/${cleanId}?utm_source=generator&theme=0`}
+                  width="100%"
+                  height="80"
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  style={{ display: 'block', border: 'none' }}
+                  scrolling="no"
+                />
               </div>
 
-              <div className="flex gap-2 shrink-0">
-                <div className="flex-1 flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                  <div className="flex items-center gap-1.5 text-gray-400 uppercase font-black text-[7px] tracking-widest"><BarChart2 size={10} /> Pop.</div>
-                  <div className="text-base font-mono text-white">{selectedNode.popularity}%</div>
+              {/* Stats row */}
+              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', fontWeight: 900, fontSize: '7px', letterSpacing: '0.1em' }}>
+                    <BarChart2 size={10} /> Pop.
+                  </div>
+                  <div style={{ fontSize: '16px', fontFamily: 'var(--font-mono)', color: 'white' }}>{selectedNode.popularity}%</div>
                 </div>
                 {activeTab === 'all' && selectedNode.top_track && (
-                  <div className="flex-1 p-3 bg-yellow-400/10 rounded-xl border border-yellow-400/20">
-                    <div className="flex items-center gap-1 text-yellow-500 uppercase font-black text-[7px] tracking-widest mb-1"><Info size={10} /> Top Track</div>
-                    <div className="text-[9px] font-bold text-white uppercase italic truncate">{selectedNode.top_track}</div>
+                  <div style={{ flex: 1, padding: '10px 12px', background: 'rgba(250,204,21,0.08)', borderRadius: '12px', border: '1px solid rgba(250,204,21,0.18)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#eab308', textTransform: 'uppercase', fontWeight: 900, fontSize: '7px', letterSpacing: '0.1em', marginBottom: '3px' }}>
+                      <Info size={10} /> Top Track
+                    </div>
+                    <div style={{ fontSize: '9px', fontWeight: 700, color: 'white', textTransform: 'uppercase', fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {selectedNode.top_track}
+                    </div>
                   </div>
                 )}
               </div>
@@ -730,7 +860,7 @@ export default function App() {
             <div className="absolute inset-0 z-[120] bg-black/60 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} />
             <div
               className="absolute inset-x-0 bottom-0 z-[130] bg-[#0c0c16] border-t border-white/10 rounded-t-[2rem] p-5 flex flex-col"
-              style={{ 
+              style={{
                 maxHeight: '82vh',
                 height: '82vh',
                 animation: 'slideUp 0.3s ease-out',
@@ -742,7 +872,7 @@ export default function App() {
                 <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Stats & Filtres</span>
                 <button onClick={() => setDrawerOpen(false)} className="text-white/30 hover:text-white"><X size={16} /></button>
               </div>
-              <div 
+              <div
                 className="flex-1 min-h-0"
                 style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
               >
