@@ -597,7 +597,7 @@ export default function App() {
                 left: '32px',
                 top: '50%',
                 transform: 'translateY(-50%)',
-                width: '272px',
+                width: '340px',
                 background: 'rgba(0,0,0,0.88)',
                 backdropFilter: 'blur(24px)',
                 border: '1px solid rgba(255,255,255,0.1)',
@@ -636,7 +636,6 @@ export default function App() {
                   frameBorder="0"
                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                   style={{ display: 'block', border: 'none' }}
-                  scrolling="no"
                 />
               </div>
 
@@ -800,7 +799,7 @@ export default function App() {
 
               {/* Header row: image + info + close */}
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flexShrink: 0 }}>
-                <img src={selectedNode.image} style={{ width: '56px', height: '56px', borderRadius: '12px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} alt="" />
+                <img src={selectedNode.image} style={{ width: '72px', height: '72px', borderRadius: '12px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} alt="" />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {activeTab === 'recent' && selectedNode.top_track && (
                     <div style={{ marginBottom: '4px', display: 'inline-block', padding: '1px 8px', background: '#facc15', color: '#000', fontSize: '7px', fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', borderRadius: '999px' }}>★ Hit</div>
@@ -827,7 +826,6 @@ export default function App() {
                   frameBorder="0"
                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                   style={{ display: 'block', border: 'none' }}
-                  scrolling="no"
                 />
               </div>
 
