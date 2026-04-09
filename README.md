@@ -23,7 +23,9 @@ npm install
 npm run dev
 ```
 
-### 4. Accessibilité
+### Accessibilité
+
+Nécessite un compte Spotify Premuium.
 Accédez à l'application via http://localhost:5173
 
 ## Status

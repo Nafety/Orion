@@ -190,7 +190,7 @@ function SetupModal({ onConnect }: { onConnect: (clientId: string) => void }) {
         <div style={{ background: 'rgba(234,179,8,0.07)', border: '0.5px solid rgba(234,179,8,0.3)', borderRadius: '12px', padding: '0.75rem 1rem', marginBottom: '1.25rem', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
           <AlertTriangle size={14} style={{ color: 'rgb(234,179,8)', flexShrink: 0, marginTop: '2px' }} />
           <p style={{ margin: 0, fontSize: '12px', color: 'rgba(234,179,8,0.85)', lineHeight: 1.6 }}>
-            <strong>Why this step?</strong> Spotify blocks unverified apps. Create your own app for free to connect without restrictions.
+            <strong>Why this step?</strong> Spotify blocks unverified apps. Create your own app without restrictions. (Premium required)
             <span style={{ display: 'block', marginTop: '4px', color: 'rgba(234,179,8,0.6)', fontSize: '11px' }}>
               No data is stored on any server — everything stays in your browser.
             </span>
