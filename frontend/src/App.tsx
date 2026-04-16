@@ -66,11 +66,9 @@ async function spotifyGet(endpoint: string, token: string) {
 }
 
 async function buildPayload(token: string) {
-  const [topTracksData, topArtistsData, recentData] = await Promise.all([
-    spotifyGet('/me/top/tracks?limit=50&time_range=medium_term', token),
-    spotifyGet('/me/top/artists?limit=50&time_range=medium_term', token),
-    spotifyGet('/me/player/recently-played?limit=50', token),
-  ])
+  const topTracksData = await spotifyGet('/me/top/tracks?limit=50&time_range=medium_term', token)
+  const topArtistsData = await spotifyGet('/me/top/artists?limit=50&time_range=medium_term', token)
+  const recentData = await spotifyGet('/me/player/recently-played?limit=50', token)
 
   const topTracks = topTracksData.items || []
   const topArtistsRaw = topArtistsData.items || []
